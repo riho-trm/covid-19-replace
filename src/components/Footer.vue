@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import BaseButton from "./presentation/BaseButton.vue";
+</script>
 
 <template>
   <footer class="flex justify-around">
@@ -27,6 +29,7 @@
       /></a>
     </div>
   </footer>
+  <BaseButton display-name="テスト"> </BaseButton>
 </template>
 
 <style scoped lang="scss"></style>
