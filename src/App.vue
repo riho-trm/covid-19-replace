@@ -2,11 +2,22 @@
 import "sanitize.css";
 import Header from "./components/Header.vue";
 import Footer from "./components/Footer.vue";
+import BaseCheckbox from "./components/presentation/BaseCheckbox.vue";
+import { ref, watchEffect } from "vue";
+import { computed } from "@vue/reactivity";
+
+let checkbox = ref(false);
+watchEffect(() => console.log(checkbox.value));
 </script>
 
 <template>
   <Header></Header>
   <router-view />
+  <BaseCheckbox
+    id="checkbox1"
+    label="チェックしてね"
+    v-model="checkbox"
+  ></BaseCheckbox>
   <Footer></Footer>
 </template>
 
