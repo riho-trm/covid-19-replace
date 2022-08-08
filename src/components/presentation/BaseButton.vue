@@ -7,7 +7,6 @@ const props = defineProps<Props>();
 interface Emits {
   (e: "click"): void;
 }
-
 const emit = defineEmits<Emits>();
 
 const handleClick = () => {
