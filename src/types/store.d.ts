@@ -36,3 +36,10 @@ export interface PrefAppUrl {
   code: string;
   url: string;
 }
+
+export interface Ventilator {
+  prefName: string;
+  clinicalEngineer: number;
+  ventilator: number;
+  ecmo: number;
+}
