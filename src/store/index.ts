@@ -1,130 +1,25 @@
+import {
+  Beds,
+  PatientsNumberByPrefecture,
+  PatientsNumberOfAll,
+  PrefAppUrl,
+  PromptReport,
+} from "@/types/store";
+import axios from "axios";
 import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    // 県別アプリ一覧
-    prefAppUrl: [
-      {
-        code: "JP-01",
-        url: "https://stopcovid19.hokkaido.dev/",
-      },
-      {
-        code: "JP-02",
-        url: "https://covid19.codeforaomori.org/",
-      },
-      {
-        code: "JP-04",
-        url: "https://covid19.pref.miyagi.jp/",
-      },
-      {
-        code: "JP-07",
-        url: "https://fukushima-covid19.firebaseapp.com/",
-      },
-      {
-        code: "JP-08",
-        url: "https://ibaraki.stopcovid19.jp/",
-      },
-      {
-        code: "JP-10",
-        url: "https://stopcovid19.pref.gunma.jp/",
-      },
-      {
-        code: "JP-11",
-        url: "https://saitama.stopcovid19.jp/",
-      },
-      {
-        code: "JP-12",
-        url: "https://covid19.civictech.chiba.jp/",
-      },
-      {
-        code: "JP-13",
-        url: "https://stopcovid19.metro.tokyo.lg.jp/",
-      },
-      {
-        code: "JP-14",
-        url: "https://www.pref.kanagawa.jp/osirase/1369/",
-      },
-      {
-        code: "JP-15",
-        url: "https://niigata.stopcovid19.jp/",
-      },
-      {
-        code: "JP-18",
-        url: "https://covid19-fukui.com/",
-      },
-      {
-        code: "JP-19",
-        url: "https://stopcovid19.yamanashi.dev/",
-      },
-      {
-        code: "JP-20",
-        url: "https://nagano.stopcovid19.jp/",
-      },
-      {
-        code: "JP-21",
-        url: "https://covid19-gifu.netlify.app/",
-      },
-      {
-        code: "JP-23",
-        url: "https://stopcovid19.code4.nagoya/",
-      },
-      {
-        code: "JP-24",
-        url: "https://covid19-mie.netlify.app/",
-      },
-      {
-        code: "JP-26",
-        url: "https://kyoto.stopcovid19.jp/",
-      },
-      {
-        code: "JP-27",
-        url: "https://covid19-osaka.info/",
-      },
-      {
-        code: "JP-28",
-        url: "https://stop-covid19-hyogo.org/",
-      },
-      {
-        code: "JP-29",
-        url: "https://stopcovid19.code4nara.org/",
-      },
-      {
-        code: "JP-34",
-        url: "https://hiroshima.stopcovid19.jp/",
-      },
-      {
-        code: "JP-35",
-        url: "https://yamaguchi.stopcovid19.jp/",
-      },
-      {
-        code: "JP-37",
-        url: "https://kagawa.stopcovid19.jp/",
-      },
-      {
-        code: "JP-38",
-        url: "https://ehime-covid19.com/",
-      },
-      {
-        code: "JP-42",
-        url: "https://nagasaki.stopcovid19.jp/",
-      },
-      {
-        code: "JP-43",
-        url: "https://stop-covid19-kumamoto.netlify.app/",
-      },
-      {
-        code: "JP-44",
-        url: "https://oita.stopcovid19.jp/",
-      },
-      {
-        code: "JP-46",
-        url: "https://covid19.code4kagoshima.org/",
-      },
-      {
-        code: "JP-47",
-        url: "https://okinawa.stopcovid19.jp/",
-      },
-    ],
+    // 全国患者数
+    patientsNumberOfAll: {} as PatientsNumberOfAll,
+    // 県別患者数
+    patientsNumberByPrefecture: [] as Array<PatientsNumberByPrefecture>,
+    // 速報患者数（東京都
+    promptReport: [] as Array<PromptReport>,
+    // 県別対策病床数
+    beds: [] as Array<Beds>,
+    // 県別アプリURL
+    prefAppUrl: [] as Array<PrefAppUrl>,
   },
   getters: {
     getAppUrl(state, prefUrl: string) {
@@ -135,7 +30,84 @@ export default createStore({
       }
     },
   },
-  mutations: {},
-  actions: {},
+  mutations: {
+    setPatientsNumber(state, data) {
+      // ステートのpatientsNumberOfAllにデータ格納
+      const patientsNumberOfAll = state.patientsNumberOfAll;
+      patientsNumberOfAll.patients = data.npatients;
+      patientsNumberOfAll.currentPatients = data.ncurrentpatients;
+      patientsNumberOfAll.exits = data.nexits;
+      patientsNumberOfAll.deaths = data.ndeaths;
+      patientsNumberOfAll.lastUpdate = data.lastUpdate;
+
+      // ステートのpatientsNumberByPrefectureにデータ格納
+      const patientsNumberByPrefecture = state.patientsNumberByPrefecture;
+      for (const areaData of data.area) {
+        patientsNumberByPrefecture.push({
+          prefName: areaData.name,
+          nameJp: areaData.name_jp,
+          patients: areaData.npatients,
+          currentPatients: areaData.ncurrentpatients,
+          exits: areaData.nexits,
+          deaths: areaData.nexits,
+          code: areaData["ISO3155-2"],
+        });
+      }
+    },
+    setPromptReport(state, data) {
+      for (const promptData of data) {
+        state.promptReport.push({
+          prefName: promptData.name,
+          patients: promptData.npatients,
+          currentpatients: promptData.ncurrentpatients,
+          exits: promptData.nexits,
+          deaths: promptData.ndeaths,
+          lastUpdate: promptData.astUpdate,
+        });
+      }
+    },
+    setBeds(state, data) {
+      for (const bedData of data) {
+        state.beds.push({
+          prefName: bedData.都道府県名,
+          bedsOfHospital: bedData.入院患者受入確保病床,
+          bedsOfHotel: bedData.宿泊施設受入可能室数,
+          lastUpdate: bedData.更新日,
+        });
+      }
+    },
+  },
+  actions: {
+    async getPatientsNumber(context) {
+      try {
+        const res = await axios.get(
+          "https://www.stopcovid19.jp/data/covid19japan.json"
+        );
+        context.commit("setPatientsNumber", res.data);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async getPromptReport(context) {
+      try {
+        const res = await axios.get(
+          "https://www.stopcovid19.jp/data/covid19japan-fast.json"
+        );
+        context.commit("setPromptReport", res.data);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async getBedsData(context) {
+      try {
+        const res = await axios.get(
+          "https://www.stopcovid19.jp/data/covid19japan_beds/latest.json"
+        );
+        context.commit("setBeds", res.data);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+  },
   modules: {},
 });
