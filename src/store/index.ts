@@ -26,6 +26,33 @@ export default createStore({
     ventilator: [] as Array<Ventilator>,
   },
   getters: {
+    getAllOverView(state, getters) {
+      return {
+        bedRate: Math.round(
+          (state.patientsNumberOfAll.currentPatients / getters.getAllBeds) * 100
+        ),
+        currentPatients: state.patientsNumberOfAll.currentPatients,
+        exists: state.patientsNumberOfAll.exits,
+        deaths: state.patientsNumberOfAll.deaths,
+        beds: getters.getAllBeds,
+        patients: state.patientsNumberOfAll.patients,
+        clinicalEngineer: state.ventilator.find(
+          (pref) => pref.prefName === "全国"
+        )?.clinicalEngineer,
+        ventilator: state.ventilator.find((pref) => pref.prefName === "全国")
+          ?.ventilator,
+        ecmo: state.ventilator.find((pref) => pref.prefName === "全国")?.ecmo,
+        patientsUpdate: state.patientsNumberOfAll.lastUpdate,
+        bedsUPdate: state.beds[0].lastUpdate,
+      };
+    },
+    getAllBeds(state) {
+      let allBeds = 0;
+      for (const beds of state.beds) {
+        allBeds += beds.bedsOfHospital + beds.bedsOfHotel;
+      }
+      return allBeds;
+    },
     getAppUrl(state, prefUrl: string) {
       for (const data of state.prefAppUrl) {
         if (data.code === prefUrl) {
@@ -74,7 +101,7 @@ export default createStore({
           source: "東京都 新型コロナウイルス患者数オープンデータ",
           sourceUrl:
             "https://catalog.data.metro.tokyo.lg.jp/organization/t000010?q=%E6%96%B0%E5%9E%8B%E3%82%B3%E3%83%AD%E3%83%8A&sort=score+desc%2C+metadata_modified+desc",
-          lastUpdate: promptData.astUpdate,
+          lastUpdate: promptData.lastUpdate,
         });
       }
       console.dir(JSON.stringify(state.promptReport));
@@ -83,9 +110,9 @@ export default createStore({
       for (const bedData of data) {
         state.beds.push({
           prefName: bedData.都道府県名,
-          bedsOfHospital: bedData.入院患者受入確保病床,
-          bedsOfHotel: bedData.宿泊施設受入可能室数,
-          lastUpdate: bedData.更新日,
+          bedsOfHospital: Number(bedData.入院患者受入確保病床),
+          bedsOfHotel: Number(bedData.宿泊施設受入可能室数),
+          lastUpdate: new Date(bedData.更新日),
         });
       }
       console.dir(JSON.stringify(state.beds));
@@ -106,11 +133,11 @@ export default createStore({
       for (const ventilatorData of data) {
         state.ventilator.push({
           prefName: ventilatorData.都道府県,
-          clinicalEngineer: ventilatorData["総CE（名）"],
+          clinicalEngineer: Number(ventilatorData["総CE（名）"]),
           ventilator:
             Number(ventilatorData["マスク専用人工呼吸器取扱（台）"]) +
             Number(ventilatorData["人工呼吸器取扱（台）"]),
-          ecmo: ventilatorData["ECMO装置取扱（台）"],
+          ecmo: Number(ventilatorData["ECMO装置取扱（台）"]),
         });
       }
       console.dir(JSON.stringify(state.ventilator));
