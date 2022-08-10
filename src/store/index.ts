@@ -4,9 +4,11 @@ import {
   PatientsNumberOfAll,
   PrefAppUrl,
   PromptReport,
+  Ventilator,
 } from "@/types/store";
 import axios from "axios";
 import { createStore } from "vuex";
+import Papa from "papaparse";
 
 export default createStore({
   state: {
@@ -20,6 +22,8 @@ export default createStore({
     beds: [] as Array<Beds>,
     // 県別アプリURL
     prefAppUrl: [] as Array<PrefAppUrl>,
+    // 人工呼吸器、ECMO数
+    ventilator: [] as Array<Ventilator>,
   },
   getters: {
     getAppUrl(state, prefUrl: string) {
@@ -53,6 +57,8 @@ export default createStore({
           code: areaData["ISO3155-2"],
         });
       }
+      console.dir(JSON.stringify(state.patientsNumberOfAll));
+      console.dir(JSON.stringify(state.patientsNumberByPrefecture));
     },
     setPromptReport(state, data) {
       for (const promptData of data) {
@@ -65,6 +71,7 @@ export default createStore({
           lastUpdate: promptData.astUpdate,
         });
       }
+      console.dir(JSON.stringify(state.promptReport));
     },
     setBeds(state, data) {
       for (const bedData of data) {
@@ -75,6 +82,32 @@ export default createStore({
           lastUpdate: bedData.更新日,
         });
       }
+      console.dir(JSON.stringify(state.beds));
+    },
+    setAppUrl(state, data) {
+      for (const urlData of data) {
+        if (urlData.url_app === "") {
+          continue;
+        }
+        state.prefAppUrl.push({
+          code: urlData["ISO3166-2"],
+          url: urlData.url_app,
+        });
+      }
+      console.dir(JSON.stringify(state.prefAppUrl));
+    },
+    setVentilator(state, data) {
+      for (const ventilatorData of data) {
+        state.ventilator.push({
+          prefName: ventilatorData.都道府県,
+          clinicalEngineer: ventilatorData["総CE（名）"],
+          ventilator:
+            Number(ventilatorData["マスク専用人工呼吸器取扱（台）"]) +
+            Number(ventilatorData["人工呼吸器取扱（台）"]),
+          ecmo: ventilatorData["ECMO装置取扱（台）"],
+        });
+      }
+      console.dir(JSON.stringify(state.ventilator));
     },
   },
   actions: {
@@ -104,6 +137,25 @@ export default createStore({
           "https://www.stopcovid19.jp/data/covid19japan_beds/latest.json"
         );
         context.commit("setBeds", res.data);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async getAppUrl(context) {
+      const res = await axios.get(
+        "https://www.stopcovid19.jp/data/covid19pref.json"
+      );
+      context.commit("setAppUrl", res.data);
+    },
+    async getVentilator(context) {
+      try {
+        const res = await axios.get(
+          "https://www.stopcovid19.jp/data/ventilator-20200306.csv"
+        );
+        const parsed = Papa.parse(res.data, {
+          header: true,
+        });
+        context.commit("setVentilator", parsed.data);
       } catch (e) {
         console.log(e);
       }
