@@ -55,6 +55,9 @@ export default createStore({
           exits: areaData.nexits,
           deaths: areaData.nexits,
           code: areaData["ISO3155-2"],
+          source:
+            "厚生労働省 新型コロナウイルス感染症 各都道府県の検査陽性者の状況",
+          sourceUrl: "https://www.mhlw.go.jp/content/10906000/000974744.pdf",
         });
       }
       console.dir(JSON.stringify(state.patientsNumberOfAll));
@@ -68,6 +71,9 @@ export default createStore({
           currentpatients: promptData.ncurrentpatients,
           exits: promptData.nexits,
           deaths: promptData.ndeaths,
+          source: "東京都 新型コロナウイルス患者数オープンデータ",
+          sourceUrl:
+            "https://catalog.data.metro.tokyo.lg.jp/organization/t000010?q=%E6%96%B0%E5%9E%8B%E3%82%B3%E3%83%AD%E3%83%8A&sort=score+desc%2C+metadata_modified+desc",
           lastUpdate: promptData.astUpdate,
         });
       }

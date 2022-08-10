@@ -14,6 +14,8 @@ export interface PatientsNumberByPrefecture {
   exits: number;
   deaths: number;
   code: string;
+  source: string;
+  sourceUrl: string;
 }
 
 export interface PromptReport {
@@ -22,6 +24,8 @@ export interface PromptReport {
   currentpatients: number;
   exits: number;
   deaths: number;
+  source: string;
+  sourceUrl: string;
   lastUpdate: Date;
 }
 
