@@ -1,7 +1,7 @@
 export interface PatientsNumberOfAll extends Object {
   patients: number;
   currentPatients: number;
-  exists: number;
+  exits: number;
   deaths: number;
   lastUpdate: Date;
 }
@@ -11,7 +11,7 @@ export interface PatientsNumberByPrefecture {
   nameJp: string;
   patients: number;
   currentPatients: number;
-  exists: number;
+  exits: number;
   deaths: number;
   code: string;
 }
@@ -20,7 +20,7 @@ export interface PromptReport {
   prefName: string;
   patients: number;
   currentpatients: number;
-  exists: number;
+  exits: number;
   deaths: number;
   lastUpdate: Date;
 }
