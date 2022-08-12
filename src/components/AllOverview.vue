@@ -23,6 +23,15 @@ let allOverview = ref({
 } as AllOverview);
 let overviewByPrefecture: OverviewByPrefecture;
 let comparisonWithPreviousDay: ComparisonWithPreviousDay;
+let tests = reactive([
+  { id: 1, name: "西畑" },
+  { id: 2, name: "大西" },
+  { id: 3, name: "道枝" },
+  { id: 4, name: "高橋" },
+  { id: 5, name: "長尾" },
+  { id: 6, name: "藤原" },
+  { id: 7, name: "大橋" },
+]);
 
 const setApiData = async () => {
   try {
@@ -101,6 +110,7 @@ created();
               class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
               {{ allOverview.deaths.toLocaleString() }}人
+              <fa icon="fa-solid fa-arrow-up" class="text-blue-700" />
             </td>
           </tr>
           <tr>
@@ -141,7 +151,23 @@ created();
       </div>
     </div>
     <!-- 右側の県別概況の表、v-forで書く -->
-    <div class="overview-by-prefecture"></div>
+    <div class="overview-by-prefecture">
+      <div class="grid grid-cols-3 gap-1">
+        <div
+          class="grid place-items-center bg-black text-white h-12 text-center col-span-2"
+        >
+          1
+        </div>
+        <div
+          v-for="test in tests"
+          :key="test.id"
+          class="grid place-items-center bg-black text-white h-12 text-center"
+        >
+          <div>{{ test.id }}</div>
+          <div>{{ test.name }}</div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="supplement"></div>
 </template>
