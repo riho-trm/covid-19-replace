@@ -52,7 +52,7 @@ const created = async () => {
   //   allOverview.ecmo = allOverviewRes.ecmo;
   //   allOverview.patientsUpdate = allOverviewRes.patientsUpdate;
   //   allOverview.bedsUPdate = allOverviewRes.bedsUPdate;
-  console.log(allOverview);
+  console.log(allOverview.value);
 };
 created();
 </script>
@@ -129,8 +129,16 @@ created();
             </td>
           </tr>
         </table>
+        <div class="update-date">
+          <div class="text-sm text-center">
+            <p>
+              現在患者数 更新日：{{ allOverview.patientsUpdate }} <br />
+              対策病床数 更新日：{{ allOverview.bedsUPdate }}
+            </p>
+          </div>
+        </div>
+        <!-- あとで速報チェックを追加する -->
       </div>
-      <div class="update-date"></div>
     </div>
     <!-- 右側の県別概況の表、v-forで書く -->
     <div class="overview-by-prefecture"></div>
