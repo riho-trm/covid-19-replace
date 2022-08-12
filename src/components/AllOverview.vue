@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import axios from "axios";
 import { reactive, ref, toRefs } from "vue";
 import { useStore } from "vuex";
 import {
   AllOverview,
   ComparisonWithPreviousDay,
   OverviewByPrefecture,
+  ComparisonRes,
 } from "../types/overview";
 const store = useStore();
 
@@ -31,7 +33,13 @@ let overviewByPrefecture = ref([
     code: "",
   },
 ] as OverviewByPrefecture[]);
-let comparisonWithPreviousDay: ComparisonWithPreviousDay;
+let comparisonWithPreviousDay = ref([
+  {
+    name: "",
+    todayCurrentPatients: 0,
+    yesterdayCurrentPatients: 0,
+  },
+] as ComparisonWithPreviousDay[]);
 
 const setApiData = async () => {
   try {
@@ -49,6 +57,19 @@ const created = async () => {
   await setApiData();
   allOverview.value = await store.getters.getAllOverView;
   overviewByPrefecture.value = await store.getters.getOverviewByPrefecture;
+  const comparisonRes = await axios.get(
+    "https://www.stopcovid19.jp/data/covid19japan-trend.json"
+  );
+  const comparisonResOfData: ComparisonRes[] = comparisonRes.data;
+  comparisonWithPreviousDay.value.splice(0, 1);
+  for (const res of comparisonResOfData) {
+    comparisonWithPreviousDay.value.push({
+      name: res.name,
+      todayCurrentPatients: res.ncurrentpatients,
+      yesterdayCurrentPatients: res.dcurrentpatients,
+    });
+  }
+  console.log(comparisonWithPreviousDay.value);
 };
 created();
 
@@ -107,7 +128,6 @@ const bedRateByPrefecture = (
               class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
               {{ allOverview.deaths.toLocaleString() }}人
-              <fa icon="fa-solid fa-arrow-up" class="text-blue-700" />
             </td>
           </tr>
           <tr>
@@ -165,7 +185,11 @@ const bedRateByPrefecture = (
           :key="overview.code"
           class="grid place-items-center bg-black text-white h-12 text-center"
         >
-          <div>{{ overview.nameJp }}</div>
+          <div>
+            {{ overview.nameJp }}
+            <fa icon="fa-solid fa-arrow-up" class="text-red-500" />
+            <fa icon="fa-solid fa-arrow-down" class="text-blue-700" />
+          </div>
           <div>
             {{
               bedRateByPrefecture(
