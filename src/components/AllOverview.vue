@@ -21,9 +21,18 @@ let allOverview = ref({
   patientsUpdate: new Date(),
   bedsUPdate: new Date(),
 } as AllOverview);
-let overviewByPrefecture: OverviewByPrefecture;
+let overviewByPrefecture = ref([
+  {
+    name: "",
+    nameJp: "",
+    currentpatients: 0,
+    bedsOfHospital: 0,
+    bedsOfHotel: 0,
+    code: "",
+  },
+] as OverviewByPrefecture[]);
 let comparisonWithPreviousDay: ComparisonWithPreviousDay;
-let tests = reactive([
+let naniwaChan = reactive([
   { id: 1, name: "西畑" },
   { id: 2, name: "大西" },
   { id: 3, name: "道枝" },
@@ -48,20 +57,8 @@ const setApiData = async () => {
 
 const created = async () => {
   await setApiData();
-  const allOverviewRes = await store.getters.getAllOverView;
-  allOverview.value = allOverviewRes;
-  //   allOverview.bedRate = allOverviewRes.bedRate;
-  //   allOverview.currentPatients = allOverviewRes.currentPatients;
-  //   allOverview.exists = allOverviewRes.exists;
-  //   allOverview.deaths = allOverviewRes.deaths;
-  //   allOverview.beds = allOverviewRes.beds;
-  //   allOverview.patients = allOverviewRes.patients;
-  //   allOverview.clinicalEngineer = allOverviewRes.clinicalEngineer;
-  //   allOverview.ventilator = allOverviewRes.ventilator;
-  //   allOverview.ecmo = allOverviewRes.ecmo;
-  //   allOverview.patientsUpdate = allOverviewRes.patientsUpdate;
-  //   allOverview.bedsUPdate = allOverviewRes.bedsUPdate;
-  console.log(allOverview.value);
+  allOverview.value = await store.getters.getAllOverView;
+  overviewByPrefecture = await store.getters.getOverviewByPrefecture;
 };
 created();
 </script>
@@ -159,12 +156,12 @@ created();
           1
         </div>
         <div
-          v-for="test in tests"
-          :key="test.id"
+          v-for="naniwa in naniwaChan"
+          :key="naniwa.id"
           class="grid place-items-center bg-black text-white h-12 text-center"
         >
-          <div>{{ test.id }}</div>
-          <div>{{ test.name }}</div>
+          <div>{{ naniwa.id }}</div>
+          <div>{{ naniwa.name }}</div>
         </div>
       </div>
     </div>
