@@ -1,9 +1,32 @@
 <script setup lang="ts">
+import { reactive, ref, toRefs } from "vue";
 import { useStore } from "vuex";
-
+import {
+  AllOverview,
+  ComparisonWithPreviousDay,
+  OverviewByPrefecture,
+} from "../types/overview";
 const store = useStore();
-const created = async () => {
+
+let allOverview = ref({
+  bedRate: 0,
+  currentPatients: 0,
+  exits: 0,
+  deaths: 0,
+  beds: 0,
+  patients: 0,
+  clinicalEngineer: 0,
+  ventilator: 0,
+  ecmo: 0,
+  patientsUpdate: new Date(),
+  bedsUPdate: new Date(),
+} as AllOverview);
+let overviewByPrefecture: OverviewByPrefecture;
+let comparisonWithPreviousDay: ComparisonWithPreviousDay;
+
+const setApiData = async () => {
   try {
+    store.commit("resetState");
     await store.dispatch("getPatientsNumber");
     await store.dispatch("getPromptReport");
     await store.dispatch("getBedsData");
@@ -12,6 +35,24 @@ const created = async () => {
   } catch (e) {
     console.log(e);
   }
+};
+
+const created = async () => {
+  await setApiData();
+  const allOverviewRes = await store.getters.getAllOverView;
+  allOverview.value = allOverviewRes;
+  //   allOverview.bedRate = allOverviewRes.bedRate;
+  //   allOverview.currentPatients = allOverviewRes.currentPatients;
+  //   allOverview.exists = allOverviewRes.exists;
+  //   allOverview.deaths = allOverviewRes.deaths;
+  //   allOverview.beds = allOverviewRes.beds;
+  //   allOverview.patients = allOverviewRes.patients;
+  //   allOverview.clinicalEngineer = allOverviewRes.clinicalEngineer;
+  //   allOverview.ventilator = allOverviewRes.ventilator;
+  //   allOverview.ecmo = allOverviewRes.ecmo;
+  //   allOverview.patientsUpdate = allOverviewRes.patientsUpdate;
+  //   allOverview.bedsUPdate = allOverviewRes.bedsUPdate;
+  console.log(allOverview);
 };
 created();
 </script>
@@ -34,12 +75,12 @@ created();
             <td
               class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
-              1,688%
+              {{ allOverview.bedRate.toLocaleString() }}%
             </td>
             <td
               class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
-              1,925,104%
+              {{ allOverview.currentPatients.toLocaleString() }}人
             </td>
           </tr>
           <tr>
@@ -47,35 +88,43 @@ created();
               累積退院者
             </th>
             <th class="border-2 border-red-800 px-4 text-sm font-normal">
-              累積退院者
+              死亡者
             </th>
           </tr>
           <tr>
             <td
               class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
-              11,993,031人
+              {{ allOverview.exits.toLocaleString() }}人
             </td>
             <td
               class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
-              33,513人
+              {{ allOverview.deaths.toLocaleString() }}人
             </td>
           </tr>
           <tr>
             <th class="border-2 border-red-800 px-4 text-sm font-normal">
-              対策病床数 115,400床
+              対策病床数 {{ allOverview.beds.toLocaleString() }}床
             </th>
             <th class="border-2 border-red-800 px-4 text-sm font-normal">
-              PCR検査陽性者数 14,429,600人
+              PCR検査陽性者数 {{ allOverview.patients.toLocaleString() }}人
             </th>
           </tr>
           <tr>
             <td colspan="2" class="border border-red-800 px-4 py-2 text-center">
               <p>
-                臨床工学技士 14,378人 / 人工呼吸器 28,197台 / ECMO 1,412台<br />2020年2月回答
-                出典 一般社団法人 日本呼吸療法医学会 公益社団法人
-                日本臨床工学技士会
+                臨床工学技士
+                {{ allOverview.clinicalEngineer.toLocaleString() }}人 /
+                人工呼吸器 {{ allOverview.ventilator.toLocaleString() }}台 /
+                ECMO
+                {{ allOverview.ecmo.toLocaleString() }}台<br />2020年2月回答
+                <a
+                  href="https://www.ja-ces.or.jp/info-ce/%e4%ba%ba%e5%b7%a5%e5%91%bc%e5%90%b8%e5%99%a8%e3%81%8a%e3%82%88%e3%81%b3ecmo%e8%a3%85%e7%bd%ae%e3%81%ae%e5%8f%96%e6%89%b1%e5%8f%b0%e6%95%b0%e7%ad%89%e3%81%ab%e9%96%a2%e3%81%99%e3%82%8b%e7%b7%8a/"
+                  class="underline"
+                  >出典 一般社団法人 日本呼吸療法医学会 公益社団法人
+                  日本臨床工学技士会</a
+                >
               </p>
             </td>
           </tr>
