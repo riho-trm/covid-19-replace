@@ -1,7 +1,7 @@
 export interface AllOverview extends Object {
   bedRate: number;
   currentPatients: number;
-  exists: number;
+  exits: number;
   deaths: number;
   beds: number;
   patients: number;
