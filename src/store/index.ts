@@ -28,11 +28,11 @@ export default createStore({
   getters: {
     getAllOverView(state, getters) {
       return {
-        bedRate: Math.round(
+        bedRate: Math.floor(
           (state.patientsNumberOfAll.currentPatients / getters.getAllBeds) * 100
         ),
         currentPatients: state.patientsNumberOfAll.currentPatients,
-        exists: state.patientsNumberOfAll.exits,
+        exits: state.patientsNumberOfAll.exits,
         deaths: state.patientsNumberOfAll.deaths,
         beds: getters.getAllBeds,
         patients: state.patientsNumberOfAll.patients,
@@ -62,6 +62,15 @@ export default createStore({
     },
   },
   mutations: {
+    resetState(state) {
+      state.patientsNumberOfAll = {} as PatientsNumberOfAll;
+      state.patientsNumberByPrefecture =
+        [] as Array<PatientsNumberByPrefecture>;
+      state.promptReport = [] as Array<PromptReport>;
+      state.beds = [] as Array<Beds>;
+      state.prefAppUrl = [] as Array<PrefAppUrl>;
+      state.ventilator = [] as Array<Ventilator>;
+    },
     setPatientsNumber(state, data) {
       // ステートのpatientsNumberOfAllにデータ格納
       const patientsNumberOfAll = state.patientsNumberOfAll;
