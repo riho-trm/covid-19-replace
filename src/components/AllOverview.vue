@@ -32,15 +32,6 @@ let overviewByPrefecture = ref([
   },
 ] as OverviewByPrefecture[]);
 let comparisonWithPreviousDay: ComparisonWithPreviousDay;
-let naniwaChan = reactive([
-  { id: 1, name: "西畑" },
-  { id: 2, name: "大西" },
-  { id: 3, name: "道枝" },
-  { id: 4, name: "高橋" },
-  { id: 5, name: "長尾" },
-  { id: 6, name: "藤原" },
-  { id: 7, name: "大橋" },
-]);
 
 const setApiData = async () => {
   try {
@@ -54,13 +45,22 @@ const setApiData = async () => {
     console.log(e);
   }
 };
-
 const created = async () => {
   await setApiData();
   allOverview.value = await store.getters.getAllOverView;
-  overviewByPrefecture = await store.getters.getOverviewByPrefecture;
+  overviewByPrefecture.value = await store.getters.getOverviewByPrefecture;
 };
 created();
+
+const bedRateByPrefecture = (
+  hospitalBeds: number,
+  hotelBeds: number,
+  currentPatients: number
+) => {
+  return Math.floor(
+    (currentPatients / (hospitalBeds + hotelBeds)) * 100
+  ).toLocaleString();
+};
 </script>
 
 <template>
@@ -149,19 +149,37 @@ created();
     </div>
     <!-- 右側の県別概況の表、v-forで書く -->
     <div class="overview-by-prefecture">
-      <div class="grid grid-cols-3 gap-1">
+      <div class="grid grid-cols-7 gap-1">
         <div
           class="grid place-items-center bg-black text-white h-12 text-center col-span-2"
         >
-          1
+          <div>
+            {{ allOverview.currentPatients.toLocaleString() }}/{{
+              allOverview.beds.toLocaleString()
+            }}
+          </div>
+          <div>(全国)現在患者数/対策病床数</div>
         </div>
         <div
-          v-for="naniwa in naniwaChan"
-          :key="naniwa.id"
+          v-for="overview of overviewByPrefecture"
+          :key="overview.code"
           class="grid place-items-center bg-black text-white h-12 text-center"
         >
-          <div>{{ naniwa.id }}</div>
-          <div>{{ naniwa.name }}</div>
+          <div>{{ overview.nameJp }}</div>
+          <div>
+            {{
+              bedRateByPrefecture(
+                overview.bedsOfHospital,
+                overview.bedsOfHotel,
+                overview.currentpatients
+              )
+            }}%
+          </div>
+          <div>
+            {{ overview.currentpatients.toLocaleString() }}/{{
+              (overview.bedsOfHospital + overview.bedsOfHotel).toLocaleString()
+            }}
+          </div>
         </div>
       </div>
     </div>
