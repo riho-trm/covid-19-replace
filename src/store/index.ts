@@ -9,6 +9,7 @@ import {
 import axios from "axios";
 import { createStore } from "vuex";
 import Papa from "papaparse";
+import { OverviewByPrefecture } from "@/types/overview";
 
 export default createStore({
   state: {
@@ -52,6 +53,22 @@ export default createStore({
         allBeds += beds.bedsOfHospital + beds.bedsOfHotel;
       }
       return allBeds;
+    },
+    getOverviewByPrefecture(state) {
+      const overviewByPrefecture = [] as OverviewByPrefecture[];
+      for (const data of state.patientsNumberByPrefecture) {
+        overviewByPrefecture.push({
+          name: data.prefName,
+          nameJp: data.nameJp,
+          currentpatients: data.currentPatients,
+          bedsOfHospital: state.beds.find((bed) => bed.prefName === data.nameJp)
+            ?.bedsOfHospital as number,
+          bedsOfHotel: state.beds.find((bed) => bed.prefName === data.nameJp)
+            ?.bedsOfHotel as number,
+          code: data.code,
+        });
+      }
+      return overviewByPrefecture;
     },
     getAppUrl(state, prefUrl: string) {
       for (const data of state.prefAppUrl) {
