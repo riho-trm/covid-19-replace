@@ -121,7 +121,7 @@ export default createStore({
           prefName: bedData.都道府県名,
           bedsOfHospital: Number(bedData.入院患者受入確保病床),
           bedsOfHotel: Number(bedData.宿泊施設受入可能室数),
-          lastUpdate: new Date(bedData.更新日),
+          lastUpdate: bedData.更新日,
         });
       }
       console.dir(JSON.stringify(state.beds));
