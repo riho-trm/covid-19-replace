@@ -26,3 +26,8 @@ export interface ComparisonWithPreviousDay {
   todayCurrentPatients: number;
   yesterdayCurrentPatients: number;
 }
+export interface ComparisonRes {
+  name: string;
+  ncurrentpatients: number;
+  dcurrentpatients: number;
+}
