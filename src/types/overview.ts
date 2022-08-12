@@ -14,7 +14,7 @@ export interface AllOverview extends Object {
 
 export interface OverviewByPrefecture {
   name: string;
-  name_jp: string;
+  nameJp: string;
   currentpatients: number;
   bedsOfHospital: number;
   bedsOfHotel: number;
