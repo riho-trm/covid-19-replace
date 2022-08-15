@@ -157,61 +157,61 @@ watchEffect(async () => {
 </script>
 
 <template>
-  <div class="overview-wrapper">
+  <div class="overview-wrapper flex">
     <!-- 左側の全国概況テーブル -->
-    <div class="all-overview">
+    <div class="all-overview w-1/2">
       <div class="table">
         <table class="border-collapse border-2 border-red-800">
           <tr>
-            <th class="border-2 border-red-800 px-4 text-sm font-normal">
+            <th class="border-2 border-red-800 px-1 text-sm font-normal">
               現在患者数/対策病床数
             </th>
-            <th class="border-2 border-red-800 px-4 text-sm font-normal">
+            <th class="border-2 border-red-800 px-1 text-sm font-normal">
               現在患者数
             </th>
           </tr>
           <tr>
             <td
-              class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
+              class="border-2 border-red-800 px-1 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
               {{ allOverview.bedRate.toLocaleString() }}%
             </td>
             <td
-              class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
+              class="border-2 border-red-800 px-1 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
               {{ allOverview.currentPatients.toLocaleString() }}人
             </td>
           </tr>
           <tr>
-            <th class="border border-red-800 px-4 text-sm font-normal">
+            <th class="border border-red-800 px-1 text-sm font-normal">
               累積退院者
             </th>
-            <th class="border-2 border-red-800 px-4 text-sm font-normal">
+            <th class="border-2 border-red-800 px-1 text-sm font-normal">
               死亡者
             </th>
           </tr>
           <tr>
             <td
-              class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
+              class="border-2 border-red-800 px-1 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
               {{ allOverview.exits.toLocaleString() }}人
             </td>
             <td
-              class="border-2 border-red-800 px-4 py-2 text-3xl text-white font-medium text-center bg-red-800"
+              class="border-2 border-red-800 px-1 py-2 text-3xl text-white font-medium text-center bg-red-800"
             >
               {{ allOverview.deaths.toLocaleString() }}人
             </td>
           </tr>
           <tr>
-            <th class="border-2 border-red-800 px-4 text-sm font-normal">
+            <th class="border-2 border-red-800 px-1 text-sm font-normal">
               対策病床数 {{ allOverview.beds.toLocaleString() }}床
             </th>
-            <th class="border-2 border-red-800 px-4 text-sm font-normal">
+            <th class="border-2 border-red-800 px-1 text-sm font-normal">
               PCR検査陽性者数 {{ allOverview.patients.toLocaleString() }}人
             </th>
           </tr>
           <tr>
-            <td colspan="2" class="border border-red-800 px-4 py-2 text-center">
+            <td colspan="2" class="border border-red-800 px-1 py-2 text-center">
               <p>
                 臨床工学技士
                 {{ allOverview.clinicalEngineer.toLocaleString() }}人 /
@@ -228,8 +228,8 @@ watchEffect(async () => {
             </td>
           </tr>
         </table>
-        <div class="update-date">
-          <div class="text-sm text-center">
+        <div class="update-date py-1.5">
+          <div class="text-xs text-center">
             <p>
               現在患者数 更新日：{{ allOverview.patientsUpdate }} <br />
               対策病床数 更新日：{{ allOverview.bedsUPdate }}
@@ -247,10 +247,10 @@ watchEffect(async () => {
         </div>
       </div>
     </div>
-    <div class="overview-by-prefecture">
+    <div class="overview-by-prefecture ml-2">
       <div class="grid grid-cols-7 gap-1">
         <div
-          class="grid place-items-center bg-black text-white h-12 text-center col-span-2"
+          class="grid place-items-center bg-black text-white text-center col-span-2"
         >
           <div>
             {{ allOverview.currentPatients.toLocaleString() }}/{{
@@ -258,11 +258,12 @@ watchEffect(async () => {
             }}
           </div>
           <div>(全国)現在患者数/対策病床数</div>
+          <div></div>
         </div>
         <div
           v-for="overview of overviewByPrefecture"
           :key="overview.code"
-          class="grid place-items-center bg-black text-white h-12 text-center"
+          class="grid place-items-center bg-black text-white text-center"
         >
           <div>
             {{ overview.nameJp }}
@@ -297,7 +298,7 @@ watchEffect(async () => {
       </div>
     </div>
   </div>
-  <div class="supplement text-center">
+  <div class="supplement text-center pt-4">
     新型コロナウイルス感染症（国内事例） 現在患者数 / 対策病床数
     ※軽症者等は自宅療養など、病床を使用しないことがあります（<a
       href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000164708_00001.html"

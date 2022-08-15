@@ -25,7 +25,7 @@ defineEmits<Emits>();
         $emit('update:modelValue', ($event.target as HTMLInputElement).checked)
       "
     />
-    <label :for="id" class="text-sm ml-3 font-medium text-gray-900">
+    <label :for="id" class="text-xs ml-3 font-medium text-gray-900">
       <slot></slot>
     </label>
   </div>
