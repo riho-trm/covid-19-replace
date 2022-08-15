@@ -21,7 +21,7 @@ export interface PatientsNumberByPrefecture {
 export interface PromptReport {
   prefName: string;
   patients: number;
-  currentpatients: number;
+  currentPatients: number;
   exits: number;
   deaths: number;
   source: string;

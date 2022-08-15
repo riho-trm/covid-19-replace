@@ -78,7 +78,7 @@ export default createStore({
       state.promptReport.forEach((promptData) =>
         promptPref.push(promptData.prefName)
       );
-      const dataByPromptPref = [];
+      const dataByPromptPref: (PatientsNumberByPrefecture | undefined)[] = [];
       for (const pref of promptPref) {
         dataByPromptPref.push(
           state.patientsNumberByPrefecture.find(
@@ -86,6 +86,7 @@ export default createStore({
           )
         );
       }
+      return dataByPromptPref;
     },
     getAppUrl(state, prefUrl: string) {
       for (const data of state.prefAppUrl) {
@@ -123,7 +124,7 @@ export default createStore({
           patients: areaData.npatients,
           currentPatients: areaData.ncurrentpatients,
           exits: areaData.nexits,
-          deaths: areaData.nexits,
+          deaths: areaData.ndeaths,
           code: areaData["ISO3155-2"],
           source:
             "厚生労働省 新型コロナウイルス感染症 各都道府県の検査陽性者の状況",
@@ -138,7 +139,7 @@ export default createStore({
         state.promptReport.push({
           prefName: promptData.name,
           patients: promptData.npatients,
-          currentpatients: promptData.ncurrentpatients,
+          currentPatients: promptData.ncurrentpatients,
           exits: promptData.nexits,
           deaths: promptData.ndeaths,
           source: "東京都 新型コロナウイルス患者数オープンデータ",
