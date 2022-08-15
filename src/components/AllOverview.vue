@@ -8,6 +8,7 @@ import {
   OverviewByPrefecture,
   ComparisonRes,
 } from "../types/overview";
+import BaseCheckbox from "@/components/presentation/BaseCheckbox.vue";
 const store = useStore();
 
 let allOverview = ref({
@@ -183,6 +184,15 @@ const upOrDown = (prefName: string, currentPatients: number) => {
           </div>
         </div>
         <!-- あとで速報チェックを追加する -->
+        <div class="use-prompt-report">
+          <BaseCheckbox id="propmt-report-check">
+            「<a
+              href="https://docs.google.com/spreadsheets/d/1SPqnO0yLn8ubax96sDJZVDcjAH8QT1suLCIgroPGVHY/edit?usp=sharing"
+              class="underline"
+              >新型コロナウイルス患者数オープンデータ</a
+            >」を使用(速報)
+          </BaseCheckbox>
+        </div>
       </div>
     </div>
     <!-- 右側の県別概況の表、v-forで書く -->
