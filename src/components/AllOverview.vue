@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
 import { useStore } from "vuex";
 import {
   AllOverview,
@@ -41,6 +41,7 @@ let comparisonWithPreviousDay = ref([
     yesterdayCurrentPatients: 0,
   },
 ] as ComparisonWithPreviousDay[]);
+let promptChecked = ref(false);
 
 const setApiData = async () => {
   try {
@@ -87,8 +88,6 @@ const upOrDown = (prefName: string, currentPatients: number) => {
   const res = comparisonWithPreviousDay.value.find(
     (data) => data.name === prefName
   );
-  console.log(res);
-
   if (
     res?.todayCurrentPatients !== currentPatients ||
     res === undefined ||
@@ -101,6 +100,60 @@ const upOrDown = (prefName: string, currentPatients: number) => {
     return 2;
   }
 };
+watchEffect(async () => {
+  if (promptChecked.value === true) {
+    const byPrefDataRes = await store.getters
+      .getDataByPrefectureWithPromptReport;
+    for (const data of byPrefDataRes) {
+      allOverview.value.currentPatients -= data.currentPatients;
+      allOverview.value.exits -= data.exits;
+      allOverview.value.deaths -= data.deaths;
+      allOverview.value.patients -= data.patients;
+    }
+
+    const promptRes = await store.getters.getPromptReport;
+    for (const data of promptRes) {
+      for (const [index, prefData] of overviewByPrefecture.value.entries()) {
+        if (prefData.name === data.prefName) {
+          prefData.currentpatients = data.currentPatients;
+        }
+      }
+      allOverview.value.currentPatients += data.currentPatients;
+      allOverview.value.exits += data.exits;
+      allOverview.value.deaths += data.deaths;
+      allOverview.value.patients += data.patients;
+    }
+    allOverview.value.bedRate = Math.floor(
+      (allOverview.value.currentPatients / allOverview.value.beds) * 100
+    );
+  }
+  if (promptChecked.value === false) {
+    const promptRes = await store.getters.getPromptReport;
+    for (const data of promptRes) {
+      allOverview.value.currentPatients -= data.currentPatients;
+      allOverview.value.exits -= data.exits;
+      allOverview.value.deaths -= data.deaths;
+      allOverview.value.patients -= data.patients;
+    }
+
+    const byPrefDataRes = await store.getters
+      .getDataByPrefectureWithPromptReport;
+    for (const data of byPrefDataRes) {
+      for (const [index, prefData] of overviewByPrefecture.value.entries()) {
+        if (prefData.name === data.prefName) {
+          prefData.currentpatients = data.currentPatients;
+        }
+      }
+      allOverview.value.currentPatients += data.currentPatients;
+      allOverview.value.exits += data.exits;
+      allOverview.value.deaths += data.deaths;
+      allOverview.value.patients += data.patients;
+    }
+    allOverview.value.bedRate = Math.floor(
+      (allOverview.value.currentPatients / allOverview.value.beds) * 100
+    );
+  }
+});
 </script>
 
 <template>
@@ -183,9 +236,8 @@ const upOrDown = (prefName: string, currentPatients: number) => {
             </p>
           </div>
         </div>
-        <!-- あとで速報チェックを追加する -->
         <div class="use-prompt-report">
-          <BaseCheckbox id="propmt-report-check">
+          <BaseCheckbox v-model="promptChecked" id="prompt-report-check">
             「<a
               href="https://docs.google.com/spreadsheets/d/1SPqnO0yLn8ubax96sDJZVDcjAH8QT1suLCIgroPGVHY/edit?usp=sharing"
               class="underline"
@@ -195,7 +247,6 @@ const upOrDown = (prefName: string, currentPatients: number) => {
         </div>
       </div>
     </div>
-    <!-- 右側の県別概況の表、v-forで書く -->
     <div class="overview-by-prefecture">
       <div class="grid grid-cols-7 gap-1">
         <div
