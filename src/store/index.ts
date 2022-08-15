@@ -70,6 +70,23 @@ export default createStore({
       }
       return overviewByPrefecture;
     },
+    getPromptReport(state) {
+      return state.promptReport;
+    },
+    getDataByPrefectureWithPromptReport(state) {
+      const promptPref: string[] = [];
+      state.promptReport.forEach((promptData) =>
+        promptPref.push(promptData.prefName)
+      );
+      const dataByPromptPref = [];
+      for (const pref of promptPref) {
+        dataByPromptPref.push(
+          state.patientsNumberByPrefecture.find(
+            (data) => data.prefName === pref
+          )
+        );
+      }
+    },
     getAppUrl(state, prefUrl: string) {
       for (const data of state.prefAppUrl) {
         if (data.code === prefUrl) {
