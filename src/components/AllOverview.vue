@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
-import { reactive, ref, toRefs } from "vue";
+import { ref } from "vue";
 import { useStore } from "vuex";
 import {
   AllOverview,
@@ -81,6 +81,24 @@ const bedRateByPrefecture = (
   return Math.floor(
     (currentPatients / (hospitalBeds + hotelBeds)) * 100
   ).toLocaleString();
+};
+const upOrDown = (prefName: string, currentPatients: number) => {
+  const res = comparisonWithPreviousDay.value.find(
+    (data) => data.name === prefName
+  );
+  console.log(res);
+
+  if (
+    res?.todayCurrentPatients !== currentPatients ||
+    res === undefined ||
+    res.yesterdayCurrentPatients === 0
+  ) {
+    return 0;
+  } else if (res.yesterdayCurrentPatients < 0) {
+    return 1;
+  } else if (res.yesterdayCurrentPatients > 0) {
+    return 2;
+  }
 };
 </script>
 
@@ -187,8 +205,18 @@ const bedRateByPrefecture = (
         >
           <div>
             {{ overview.nameJp }}
-            <fa icon="fa-solid fa-arrow-up" class="text-red-500" />
-            <fa icon="fa-solid fa-arrow-down" class="text-blue-700" />
+            <fa
+              v-if="upOrDown(overview.name, overview.currentpatients) === 2"
+              icon="fa-solid fa-arrow-up"
+              class="text-red-500"
+            />
+            <fa
+              v-else-if="
+                upOrDown(overview.name, overview.currentpatients) === 1
+              "
+              icon="fa-solid fa-arrow-down"
+              class="text-blue-700"
+            />
           </div>
           <div>
             {{
