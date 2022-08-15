@@ -2,7 +2,6 @@
 interface Props {
   id: string;
   checked?: boolean;
-  label: string;
 }
 withDefaults(defineProps<Props>(), {
   checked: false,
@@ -15,7 +14,7 @@ defineEmits<Emits>();
 </script>
 
 <template>
-  <div class="flex items-center mb-4">
+  <div class="flex items-center mb-4 justify-center">
     <input
       :id="id"
       aria-describedby="checkbox-1"
@@ -26,10 +25,8 @@ defineEmits<Emits>();
         $emit('update:modelValue', ($event.target as HTMLInputElement).checked)
       "
     />
-    <label
-      :for="id"
-      class="text-sm ml-3 font-medium text-gray-900 cursor-pointer"
-      >{{ label }}</label
-    >
+    <label :for="id" class="text-sm ml-3 font-medium text-gray-900">
+      <slot></slot>
+    </label>
   </div>
 </template>
