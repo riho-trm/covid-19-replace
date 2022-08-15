@@ -230,10 +230,13 @@ watchEffect(async () => {
         </table>
         <div class="update-date py-1.5">
           <div class="text-xs text-center">
-            <p>
-              現在患者数 更新日：{{ allOverview.patientsUpdate }} <br />
-              対策病床数 更新日：{{ allOverview.bedsUPdate }}
-            </p>
+            <div class="flex-wrapper flex justify-center">
+              <div>現在患者数 更新日：{{ allOverview.patientsUpdate }}</div>
+              <div v-if="promptChecked">
+                （速報 {{ store.state.promptReport[0].lastUpdate }}）
+              </div>
+            </div>
+            <div>対策病床数 更新日：{{ allOverview.bedsUPdate }}</div>
           </div>
         </div>
         <div class="use-prompt-report">
