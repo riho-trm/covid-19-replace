@@ -236,5 +236,18 @@ const upOrDown = (prefName: string, currentPatients: number) => {
       </div>
     </div>
   </div>
-  <div class="supplement"></div>
+  <div class="supplement text-center">
+    新型コロナウイルス感染症（国内事例） 現在患者数 / 対策病床数
+    ※軽症者等は自宅療養など、病床を使用しないことがあります（<a
+      href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000164708_00001.html"
+      class="underline"
+      >詳細</a
+    >）
+    <br />
+    （現在患者数 前日より増加<fa
+      icon="fa-solid fa-arrow-up"
+      class="text-red-500"
+    />
+    前日より減少<fa icon="fa-solid fa-arrow-down" class="text-blue-700" />）
+  </div>
 </template>
