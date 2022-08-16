@@ -43,6 +43,7 @@ let comparisonWithPreviousDay = ref([
   },
 ] as ComparisonWithPreviousDay[]);
 let promptChecked = ref(false);
+let isVisible = ref(false);
 
 const setApiData = async () => {
   try {
@@ -154,6 +155,13 @@ watchEffect(async () => {
     );
   }
 });
+
+const showModal = () => {
+  isVisible.value = true;
+};
+const closeModal = () => {
+  isVisible.value = false;
+};
 </script>
 
 <template>
@@ -265,8 +273,9 @@ watchEffect(async () => {
         </div>
         <div
           v-for="overview of overviewByPrefecture"
+          v-on:click="showModal()"
           :key="overview.code"
-          class="grid place-items-center bg-black text-white text-center"
+          class="cursor-pointer grid place-items-center bg-black text-white text-center"
         >
           <div>
             {{ overview.nameJp }}
@@ -315,7 +324,9 @@ watchEffect(async () => {
     />
     前日より減少<fa icon="fa-solid fa-arrow-down" class="text-blue-700" />）
   </div>
+  <!-- モーダル -->
   <OverviewByPrefectureVue
+    :is-visible="isVisible"
     :prompt-checked="true"
     pref-code="JP-13"
     pref-name="Tokyo"
