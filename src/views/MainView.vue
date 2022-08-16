@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import AllOverview from "../components/AllOverview.vue";
 import Footer from "../components/Footer.vue";
+import OverviewGraph from "@/components/OverviewGraph.vue";
 
 let openTab = ref(1);
 
@@ -48,7 +49,7 @@ const toggleTabs = (tabNumber: number) => {
               <AllOverview></AllOverview>
             </div>
             <div v-bind:class="{ hidden: openTab !== 2, block: openTab === 2 }">
-              <Footer></Footer>
+              <OverviewGraph></OverviewGraph>
             </div>
           </div>
         </div>
