@@ -9,6 +9,7 @@ import { parse } from "path";
 const store = useStore();
 
 interface Props {
+  isVisible: boolean;
   promptChecked: boolean;
   prefCode: string;
   prefName: string;
@@ -123,5 +124,22 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div></div>
+  <teleport to="body">
+    <div
+      class="modal fixed inset-0 bg-gray-400 bg-opacity-70 flex flex-col items-center justify-center"
+      v-show="isVisible"
+    ></div>
+    <div
+      class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center bg-white w-3/4 h-auto p-5"
+      v-show="isVisible"
+    >
+      <div class="modal-wrapper">
+        <!-- コンテンツ配置 -->
+        テストだよ
+      </div>
+      <div class="btn">
+        <!-- ボタン配置 -->
+      </div>
+    </div>
+  </teleport>
 </template>
