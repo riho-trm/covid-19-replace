@@ -131,8 +131,6 @@ export default createStore({
           sourceUrl: "https://www.mhlw.go.jp/content/10906000/000974744.pdf",
         });
       }
-      console.dir(JSON.stringify(state.patientsNumberOfAll));
-      console.dir(JSON.stringify(state.patientsNumberByPrefecture));
     },
     setPromptReport(state, data) {
       for (const promptData of data) {
@@ -148,7 +146,6 @@ export default createStore({
           lastUpdate: promptData.lastUpdate,
         });
       }
-      console.dir(JSON.stringify(state.promptReport));
     },
     setBeds(state, data) {
       for (const bedData of data) {
@@ -159,19 +156,16 @@ export default createStore({
           lastUpdate: bedData.更新日,
         });
       }
-      console.dir(JSON.stringify(state.beds));
     },
     setAppUrl(state, data) {
       for (const urlData of data) {
-        if (urlData.url_app === "") {
-          continue;
-        }
         state.prefAppUrl.push({
           code: urlData["ISO3166-2"],
-          url: urlData.url_app,
+          url: urlData.url,
+          appUrl: urlData.url_app,
         });
       }
-      console.dir(JSON.stringify(state.prefAppUrl));
+      console.log(state.prefAppUrl);
     },
     setVentilator(state, data) {
       for (const ventilatorData of data) {
@@ -184,7 +178,6 @@ export default createStore({
           ecmo: Number(ventilatorData["ECMO装置取扱（台）"]),
         });
       }
-      console.dir(JSON.stringify(state.ventilator));
     },
   },
   actions: {

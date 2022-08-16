@@ -39,6 +39,7 @@ export interface Beds {
 export interface PrefAppUrl {
   code: string;
   url: string;
+  appUrl: string;
 }
 
 export interface Ventilator {
