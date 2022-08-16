@@ -41,14 +41,31 @@ const renderChart = () => {
     },
     options: {
       responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: "COVID-19 日本の新型コロナウイルス概況",
+          font: { size: 12 },
+        },
+      },
       scales: {
         y: {
           type: "linear",
           position: "right",
+          title: {
+            display: true,
+            text: "現在入院を要する者",
+            font: { size: 10 },
+          },
         },
         y2: {
           type: "linear",
           position: "left",
+          title: {
+            display: true,
+            text: "救急搬送困難事案数",
+            font: { size: 10 },
+          },
         },
       },
     },
