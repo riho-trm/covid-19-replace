@@ -48,3 +48,14 @@ export interface Ventilator {
   ventilator: number;
   ecmo: number;
 }
+
+export interface GetDataOfPrefecture {
+  nameJp: string;
+  patients: number;
+  currentPatients: number;
+  exits: number;
+  deaths: number;
+  source: string;
+  sourceUrl: string;
+  lastUpdate: string;
+}

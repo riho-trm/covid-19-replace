@@ -1,5 +1,6 @@
 import {
   Beds,
+  GetDataOfPrefecture,
   PatientsNumberByPrefecture,
   PatientsNumberOfAll,
   PrefAppUrl,
@@ -88,12 +89,75 @@ export default createStore({
       }
       return dataByPromptPref;
     },
-    getAppUrl(state, prefUrl: string) {
+    getDataOfPrefecture: (state) => (code: string) => {
+      const returnData = {
+        nameJp: "",
+        patients: 0,
+        currentPatients: 0,
+        exits: 0,
+        deaths: 0,
+        source: "",
+        sourceUrl: "",
+        lastUpdate: "",
+      };
+      const res = state.patientsNumberByPrefecture.find(
+        (data) => data.code === code
+      );
+      if (res === undefined) {
+        return res;
+      } else {
+        (returnData.nameJp = res.nameJp),
+          (returnData.patients = res.patients),
+          (returnData.currentPatients = res.currentPatients),
+          (returnData.exits = res.exits),
+          (returnData.deaths = res.deaths),
+          (returnData.source = res.source),
+          (returnData.sourceUrl = res.sourceUrl),
+          (returnData.lastUpdate = state.patientsNumberOfAll
+            .lastUpdate as unknown as string);
+        return returnData;
+      }
+    },
+    getPromptReportByPrefecture: (state) => (prefName: string) => {
+      const returnData = {
+        nameJp: "",
+        patients: 0,
+        currentPatients: 0,
+        exits: 0,
+        deaths: 0,
+        source: "",
+        sourceUrl: "",
+        lastUpdate: "",
+      };
+      const res = state.promptReport.find(
+        (report) => report.prefName === prefName
+      );
+      if (res === undefined) {
+        return res;
+      } else {
+        (returnData.nameJp = state.patientsNumberByPrefecture.find(
+          (data) => data.prefName === prefName
+        )?.nameJp as string),
+          (returnData.patients = res.patients),
+          (returnData.currentPatients = res.currentPatients),
+          (returnData.exits = res.exits),
+          (returnData.deaths = res.deaths),
+          (returnData.source = res.source),
+          (returnData.sourceUrl = res.sourceUrl),
+          (returnData.lastUpdate = res.lastUpdate as unknown as string);
+        return returnData;
+      }
+    },
+    getAppUrl: (state) => (code: string) => {
       for (const data of state.prefAppUrl) {
-        if (data.code === prefUrl) {
-          return data.url;
+        if (data.code === code) {
+          return data;
         }
       }
+    },
+    getNameJp: (state) => (code: string) => {
+      return state.patientsNumberByPrefecture.find((data) => data.code === code)
+        ?.nameJp;
     },
   },
   mutations: {
@@ -165,7 +229,6 @@ export default createStore({
           appUrl: urlData.url_app,
         });
       }
-      console.log(state.prefAppUrl);
     },
     setVentilator(state, data) {
       for (const ventilatorData of data) {
@@ -222,7 +285,7 @@ export default createStore({
         const res = await axios.get(
           "https://www.stopcovid19.jp/data/ventilator-20200306.csv"
         );
-        const parsed = Papa.parse(res.data, {
+        const parsed = Papa.parse<any>(res.data, {
           header: true,
         });
         context.commit("setVentilator", parsed.data);

@@ -119,8 +119,6 @@ const getEmargencyTransportDifficult = async () => {
     const parsed: EmargencyTransportDifficult[] = Papa.parse(res.data, {
       header: true,
     }).data as unknown as EmargencyTransportDifficult[];
-    console.log(parsed);
-    console.log(new Date(parsed[0].終了日));
     for (const data of parsed) {
       const date = parse(data.終了日, "yyyy-MM-dd", new Date());
       if (
@@ -138,7 +136,6 @@ const getEmargencyTransportDifficult = async () => {
   } catch (e) {
     console.log(e);
   }
-  console.log(emargencyTransportDifficult);
 };
 </script>
 

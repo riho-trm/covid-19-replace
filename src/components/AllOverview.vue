@@ -9,6 +9,7 @@ import {
   ComparisonRes,
 } from "../types/overview";
 import BaseCheckbox from "@/components/presentation/BaseCheckbox.vue";
+import OverviewByPrefectureVue from "./OverviewByPrefecture.vue";
 const store = useStore();
 
 let allOverview = ref({
@@ -71,7 +72,6 @@ const created = async () => {
       yesterdayCurrentPatients: res.dcurrentpatients,
     });
   }
-  console.log(comparisonWithPreviousDay.value);
 };
 created();
 
@@ -315,4 +315,13 @@ watchEffect(async () => {
     />
     前日より減少<fa icon="fa-solid fa-arrow-down" class="text-blue-700" />）
   </div>
+  <OverviewByPrefectureVue
+    :prompt-checked="true"
+    pref-code="JP-13"
+    pref-name="Tokyo"
+    :beds-of-hospital="100"
+    :beds-of-hotel="200"
+    :bed-rate="1322"
+    beds-update="2022-8-15"
+  ></OverviewByPrefectureVue>
 </template>
