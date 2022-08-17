@@ -154,7 +154,7 @@ const renderChart = () => {
       ],
     },
     options: {
-      responsive: false,
+      responsive: true,
     },
   });
 
@@ -240,13 +240,60 @@ watchEffect(() => {
       v-show="isVisible"
     ></div>
     <div
-      class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white w-3/4 h-screen p-5"
+      class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white w-3/4 h-screen p-5 overflow-y-scroll"
       v-show="isVisible"
     >
       <div class="modal-wrapper">
         <!-- コンテンツ配置 -->
-        <div class="w-full">
+        <div class="text-center text-3xl">
+          {{ store.getters.getNameJp(props.prefCode) }} 現在患者数/対策病床数
+          {{ props.bedRate }}%
+        </div>
+        <div class="w-full px-32 my-1">
           <canvas id="pieChart"></canvas>
+        </div>
+        <div class="text-center text-2xl">
+          累積陽性者: {{ displayDataByStore.patients.toLocaleString() }}人
+          累積退院者: {{ displayDataByStore.exits.toLocaleString() }}人
+          <br />
+          累積死者: {{ displayDataByStore.deaths.toLocaleString() }}人
+          対策病床数:
+          {{ (props.bedsOfHospital + props.bedsOfHotel).toLocaleString() }}床
+        </div>
+        <div class="text-center">
+          現在患者数 出典:
+          <a :href="displayDataByStore.sourceUrl" class="underline">{{
+            displayDataByStore.source
+          }}</a
+          >(更新日: {{ displayDataByStore.lastUpdate }})
+          <br />
+          <a
+            href="http://www.jibika.or.jp/members/information/info_corona.html"
+            class="underline"
+            >一般社団法人 日本耳鼻咽喉科学会</a
+          >定義におけるハイリスク地域（現在患者数
+          {{ displayDataByStore.currentPatients }}名 >= 10名）
+          <br />
+          対策病床数 医療機関{{ props.bedsOfHospital }}床+宿泊施設{{
+            props.bedsOfHotel
+          }}室 出典:
+          <a
+            href="https://www.mhlw.go.jp/stf/seisakunitsuite/newpage_00023.html"
+            class="underline"
+            >新型コロナウイルス対策病床数オープンデータ</a
+          >(発表日: {{ props.bedsUpdate }})
+        </div>
+        <div class="pt-6 pb-3 text-center">
+          (参考) 臨床工学技士:{{ displayDataByStore.clinicalEngineer }}人
+          マスク専用含む人工呼吸器取扱:{{ displayDataByStore.ventilator }}台
+          ECMO装置取扱:{{ displayDataByStore.ecmo }}台
+          <br />
+          2020年2月回答 出典:
+          <a
+            href="https://www.ja-ces.or.jp/info-ce/%e4%ba%ba%e5%b7%a5%e5%91%bc%e5%90%b8%e5%99%a8%e3%81%8a%e3%82%88%e3%81%b3ecmo%e8%a3%85%e7%bd%ae%e3%81%ae%e5%8f%96%e6%89%b1%e5%8f%b0%e6%95%b0%e7%ad%89%e3%81%ab%e9%96%a2%e3%81%99%e3%82%8b%e7%b7%8a/"
+            class="underline"
+            >一般社団法人 日本呼吸療法医学会 公益社団法人 日本臨床工学技士会</a
+          >
         </div>
         <div class="w-full h-4/5">
           <canvas id="lineChart"></canvas>
