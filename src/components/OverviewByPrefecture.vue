@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { GetDataOfPrefecture } from "@/types/store.js";
 import axios from "axios";
-import { onMounted, ref, watchEffect } from "vue";
+import { onMounted, ref, watch, watchEffect } from "vue";
 import { useStore } from "vuex";
 import Papa from "papaparse";
 import Chart, { ChartItem } from "chart.js/auto";
@@ -36,9 +36,9 @@ const displayDataByStore = ref({
   ecmo: 0,
 });
 const graphDataByApi = {
-  labels: [],
-  currentPatients: [],
-  deaths: [],
+  labels: [] as string[],
+  currentPatients: [] as number[],
+  deaths: [] as number[],
 };
 
 const getDisplayDataByStore = async () => {
@@ -73,7 +73,6 @@ const getDisplayDataByStore = async () => {
     Number(ventRes["マスク専用人工呼吸器取扱（台）"]) +
     Number(ventRes["人工呼吸器取扱（台）"]);
   displayDataByStore.value.ecmo = Number(ventRes["ECMO装置取扱（台）"]);
-  console.log(displayDataByStore.value);
 };
 
 const getVentilator = async (nameJp: string) => {
@@ -93,6 +92,9 @@ const getVentilator = async (nameJp: string) => {
   }
 };
 const getGraphData = async () => {
+  graphDataByApi.labels.splice(0);
+  graphDataByApi.currentPatients.splice(0);
+  graphDataByApi.deaths.splice(0);
   try {
     const res = await axios.get(
       `https://www.stopcovid19.jp/data/covid19japan/pref/${props.prefName}.csv`
@@ -100,23 +102,17 @@ const getGraphData = async () => {
     const parsed: any = Papa.parse(res.data, {
       header: true,
     }).data;
-    console.log(parsed);
-
-    // const returnRes = parsed.find(
-    //   (data: { [x: string]: string }) => data.都道府県 === nameJp
-    // );
-    // return returnRes;
+    for (const data of parsed) {
+      graphDataByApi.labels.push(data.date);
+      graphDataByApi.currentPatients.push(Number(data.ncurrentpatients));
+      graphDataByApi.deaths.push(Number(data.ndeaths));
+    }
   } catch (e) {
     console.log(e);
   }
 };
 
-// const created = async () => {
-//
-// };
-// created();
-
-// 円グラフ
+// グラフ
 const bedsRemaining = () => {
   return (
     props.bedsOfHospital +
@@ -132,9 +128,14 @@ const pieBeds = () => {
     return res;
   }
 };
+
 let pieChart: Chart<"pie", number[], string>;
+let lineChart: Chart<"line", number[], string>;
 const renderChart = () => {
+  console.log("renderChartがよばれた");
+
   let ctx1 = document.getElementById("pieChart") as ChartItem;
+
   if (pieChart) {
     pieChart.destroy();
   }
@@ -156,15 +157,79 @@ const renderChart = () => {
       responsive: false,
     },
   });
+
+  if (lineChart) {
+    lineChart.destroy();
+  }
+  let ctx = document.getElementById("lineChart") as ChartItem;
+  lineChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: graphDataByApi.labels,
+      datasets: [
+        {
+          label: "入院治療を要する者",
+          data: graphDataByApi.currentPatients,
+          backgroundColor: ["rgba(255, 99, 132, 0.2)"],
+          borderColor: ["rgba(255,99,132,1)"],
+          borderWidth: 1,
+          yAxisID: "y",
+        },
+        {
+          label: "累計死亡者数",
+          data: graphDataByApi.deaths,
+          backgroundColor: ["rgba(54, 162, 235, 0.2)"],
+          borderColor: ["rgba(54, 162, 235, 1)"],
+          borderWidth: 1,
+          yAxisID: "y2",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          type: "linear",
+          position: "right",
+          title: {
+            display: true,
+            text: "入院治療を要する者",
+            font: { size: 10 },
+          },
+        },
+        y2: {
+          type: "linear",
+          position: "left",
+          title: {
+            display: true,
+            text: "累計死亡者数",
+            font: { size: 10 },
+          },
+        },
+      },
+    },
+  });
+  console.log(graphDataByApi.currentPatients);
 };
 
-onMounted(() => {
+const clickButton = () => {
+  console.log("ボタンクリック");
+  renderChart();
+};
+
+defineExpose({
+  renderChart,
+  clickButton,
+});
+
+onMounted(async () => {
+  await getDisplayDataByStore();
+  await getGraphData();
   renderChart();
 });
 watchEffect(() => {
   getDisplayDataByStore();
   getGraphData();
-  renderChart();
 });
 </script>
 
@@ -175,13 +240,16 @@ watchEffect(() => {
       v-show="isVisible"
     ></div>
     <div
-      class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center bg-white w-3/4 h-auto p-5"
+      class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white w-3/4 h-screen p-5"
       v-show="isVisible"
     >
       <div class="modal-wrapper">
         <!-- コンテンツ配置 -->
-        <div>
+        <div class="w-full">
           <canvas id="pieChart"></canvas>
+        </div>
+        <div class="w-full h-4/5">
+          <canvas id="lineChart"></canvas>
         </div>
       </div>
       <div class="btn">

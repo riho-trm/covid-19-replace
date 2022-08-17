@@ -43,7 +43,17 @@ let comparisonWithPreviousDay = ref([
   },
 ] as ComparisonWithPreviousDay[]);
 let promptChecked = ref(false);
-let isVisible = ref(false);
+let modalData = ref({
+  isVisible: false,
+  prefCode: "",
+  prefName: "",
+  bedsOfHospital: 0,
+  bedsOfHotel: 0,
+  bedRate: 0,
+  bedsUpdate: "",
+});
+
+const childRef = ref();
 
 const setApiData = async () => {
   try {
@@ -81,9 +91,7 @@ const bedRateByPrefecture = (
   hotelBeds: number,
   currentPatients: number
 ) => {
-  return Math.floor(
-    (currentPatients / (hospitalBeds + hotelBeds)) * 100
-  ).toLocaleString();
+  return Math.floor((currentPatients / (hospitalBeds + hotelBeds)) * 100);
 };
 const upOrDown = (prefName: string, currentPatients: number) => {
   const res = comparisonWithPreviousDay.value.find(
@@ -156,11 +164,30 @@ watchEffect(async () => {
   }
 });
 
-const showModal = () => {
-  isVisible.value = true;
+const showModal = (
+  code: string,
+  name: string,
+  bedsOfHospital: number,
+  bedsOfHotel: number,
+  currentPatients: number
+) => {
+  modalData.value.isVisible = true;
+  modalData.value.prefCode = code;
+  modalData.value.prefName = name;
+  modalData.value.bedsOfHospital = bedsOfHospital;
+  modalData.value.bedsOfHotel = bedsOfHotel;
+  modalData.value.bedRate = bedRateByPrefecture(
+    bedsOfHospital,
+    bedsOfHotel,
+    currentPatients
+  );
+  modalData.value.bedsUpdate = allOverview.value
+    .bedsUPdate as unknown as string;
+
+  setTimeout(childRef.value.clickButton, 1000);
 };
 const closeModal = () => {
-  isVisible.value = false;
+  modalData.value.isVisible = false;
 };
 </script>
 
@@ -273,7 +300,15 @@ const closeModal = () => {
         </div>
         <div
           v-for="overview of overviewByPrefecture"
-          v-on:click="showModal()"
+          v-on:click="
+            showModal(
+              overview.code,
+              overview.name,
+              overview.bedsOfHospital,
+              overview.bedsOfHotel,
+              overview.currentpatients
+            )
+          "
           :key="overview.code"
           class="cursor-pointer grid place-items-center bg-black text-white text-center"
         >
@@ -298,7 +333,7 @@ const closeModal = () => {
                 overview.bedsOfHospital,
                 overview.bedsOfHotel,
                 overview.currentpatients
-              )
+              ).toLocaleString()
             }}%
           </div>
           <div>
@@ -326,13 +361,14 @@ const closeModal = () => {
   </div>
   <!-- モーダル -->
   <OverviewByPrefectureVue
-    :is-visible="isVisible"
-    :prompt-checked="true"
-    pref-code="JP-13"
-    pref-name="Tokyo"
-    :beds-of-hospital="100"
-    :beds-of-hotel="200"
-    :bed-rate="1322"
-    beds-update="2022-8-15"
+    ref="childRef"
+    :is-visible="modalData.isVisible"
+    :prompt-checked="promptChecked"
+    :pref-code="modalData.prefCode"
+    :pref-name="modalData.prefName"
+    :beds-of-hospital="modalData.bedsOfHospital"
+    :beds-of-hotel="modalData.bedsOfHotel"
+    :bed-rate="modalData.bedRate"
+    :beds-update="modalData.bedsUpdate"
   ></OverviewByPrefectureVue>
 </template>
