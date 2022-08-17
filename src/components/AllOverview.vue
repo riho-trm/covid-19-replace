@@ -370,5 +370,6 @@ const closeModal = () => {
     :beds-of-hotel="modalData.bedsOfHotel"
     :bed-rate="modalData.bedRate"
     :beds-update="modalData.bedsUpdate"
+    @close="closeModal"
   ></OverviewByPrefectureVue>
 </template>

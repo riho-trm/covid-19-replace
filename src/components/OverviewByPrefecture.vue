@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { GetDataOfPrefecture } from "@/types/store.js";
 import axios from "axios";
-import { onMounted, ref, watch, watchEffect } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 import { useStore } from "vuex";
 import Papa from "papaparse";
 import Chart, { ChartItem } from "chart.js/auto";
-
+import BaseButton from "@/components/presentation/BaseButton.vue";
+import { useRouter } from "vue-router";
 const store = useStore();
+const router = useRouter();
 
 interface Props {
   isVisible: boolean;
@@ -213,14 +215,22 @@ const renderChart = () => {
 };
 
 const clickButton = () => {
-  console.log("ボタンクリック");
   renderChart();
 };
 
-defineExpose({
-  renderChart,
-  clickButton,
-});
+interface Emits {
+  (e: "close"): void;
+}
+const emit = defineEmits<Emits>();
+const closeModal = () => {
+  emit("close");
+};
+const jumpOfficialPage = () => {
+  window.open(displayDataByStore.value.url, "_blank");
+};
+const jumpAppPage = () => {
+  window.open(displayDataByStore.value.appUrl, "_blank");
+};
 
 onMounted(async () => {
   await getDisplayDataByStore();
@@ -230,6 +240,11 @@ onMounted(async () => {
 watchEffect(() => {
   getDisplayDataByStore();
   getGraphData();
+});
+
+defineExpose({
+  renderChart,
+  clickButton,
 });
 </script>
 
@@ -244,6 +259,13 @@ watchEffect(() => {
       v-show="isVisible"
     >
       <div class="modal-wrapper">
+        <div class="text-right">
+          <fa
+            icon="fa-solid fa-xmark"
+            class="text-gray-500 text-4xl cursor-pointer"
+            @click="closeModal"
+          />
+        </div>
         <!-- コンテンツ配置 -->
         <div class="text-center text-3xl">
           {{ store.getters.getNameJp(props.prefCode) }} 現在患者数/対策病床数
@@ -299,8 +321,17 @@ watchEffect(() => {
           <canvas id="lineChart"></canvas>
         </div>
       </div>
-      <div class="btn">
-        <!-- ボタン配置 -->
+      <div class="btn flex justify-center py-8">
+        <BaseButton display-name="とじる" @click="closeModal"></BaseButton>
+        <BaseButton
+          v-if="displayDataByStore.appUrl !== ''"
+          display-name="アプリへ"
+          @click="jumpAppPage"
+        ></BaseButton>
+        <BaseButton
+          display-name="公式サイトへ"
+          @click="jumpOfficialPage"
+        ></BaseButton>
       </div>
     </div>
   </teleport>
