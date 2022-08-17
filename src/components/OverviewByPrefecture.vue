@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { GetDataOfPrefecture } from "@/types/store.js";
 import axios from "axios";
-import { ref, toRefs, watch, watchEffect } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 import { useStore } from "vuex";
 import Papa from "papaparse";
-import { parse } from "path";
+import Chart, { ChartItem } from "chart.js/auto";
 
 const store = useStore();
 
@@ -20,12 +20,6 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const graphDataByApi = [
-  {
-    currentPatients: 0,
-    deaths: 0,
-  },
-];
 const displayDataByStore = ref({
   nameJp: "",
   patients: 0,
@@ -41,6 +35,11 @@ const displayDataByStore = ref({
   ventilator: 0,
   ecmo: 0,
 });
+const graphDataByApi = {
+  labels: [],
+  currentPatients: [],
+  deaths: [],
+};
 
 const getDisplayDataByStore = async () => {
   const urlRes = await store.getters.getAppUrl(props.prefCode);
@@ -112,15 +111,61 @@ const getGraphData = async () => {
   }
 };
 
-watchEffect(() => {
-  getDisplayDataByStore();
-  getGraphData();
-});
-
 // const created = async () => {
 //
 // };
 // created();
+
+// 円グラフ
+const bedsRemaining = () => {
+  return (
+    props.bedsOfHospital +
+    props.bedsOfHotel -
+    displayDataByStore.value.currentPatients
+  );
+};
+const pieBeds = () => {
+  const res = bedsRemaining();
+  if (res < 0) {
+    return 0;
+  } else {
+    return res;
+  }
+};
+let pieChart: Chart<"pie", number[], string>;
+const renderChart = () => {
+  let ctx1 = document.getElementById("pieChart") as ChartItem;
+  if (pieChart) {
+    pieChart.destroy();
+  }
+  pieChart = new Chart(ctx1, {
+    type: "pie",
+    data: {
+      labels: [
+        `現在患者数(${displayDataByStore.value.currentPatients})`,
+        `想定病床残数(${bedsRemaining()})`,
+      ],
+      datasets: [
+        {
+          backgroundColor: ["#fa8072", "#a9a9a9"],
+          data: [displayDataByStore.value.currentPatients, pieBeds()],
+        },
+      ],
+    },
+    options: {
+      responsive: false,
+    },
+  });
+};
+
+onMounted(() => {
+  renderChart();
+});
+watchEffect(() => {
+  getDisplayDataByStore();
+  getGraphData();
+  renderChart();
+});
 </script>
 
 <template>
@@ -135,7 +180,9 @@ watchEffect(() => {
     >
       <div class="modal-wrapper">
         <!-- コンテンツ配置 -->
-        テストだよ
+        <div>
+          <canvas id="pieChart"></canvas>
+        </div>
       </div>
       <div class="btn">
         <!-- ボタン配置 -->
