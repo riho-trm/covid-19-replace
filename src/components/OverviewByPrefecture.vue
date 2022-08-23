@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { GetDataOfPrefecture } from "@/types/store.js";
 import axios from "axios";
-import { onMounted, ref, watchEffect } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import Papa from "papaparse";
 import Chart, { ChartItem } from "chart.js/auto";
 import BaseButton from "@/components/presentation/BaseButton.vue";
 import { useRouter } from "vue-router";
 const store = useStore();
-const router = useRouter();
 
 interface Props {
   isVisible: boolean;
@@ -42,6 +41,19 @@ const graphDataByApi = {
   currentPatients: [] as number[],
   deaths: [] as number[],
 };
+const municipalityOfTokyo = ref({
+  update: "",
+  data: [
+    {
+      name: "",
+      count: 0,
+      class: "",
+    },
+  ],
+  outOfTokyo: 0,
+  investigating: 0,
+  subTotal: 0,
+});
 
 const getDisplayDataByStore = async () => {
   const urlRes = await store.getters.getAppUrl(props.prefCode);
@@ -75,6 +87,10 @@ const getDisplayDataByStore = async () => {
     Number(ventRes["マスク専用人工呼吸器取扱（台）"]) +
     Number(ventRes["人工呼吸器取扱（台）"]);
   displayDataByStore.value.ecmo = Number(ventRes["ECMO装置取扱（台）"]);
+
+  if (props.prefCode === "JP-13") {
+    getMunicipalityOfTokyo();
+  }
 };
 
 const getVentilator = async (nameJp: string) => {
@@ -113,6 +129,46 @@ const getGraphData = async () => {
     console.log(e);
   }
 };
+const getMunicipalityOfTokyo = async () => {
+  municipalityOfTokyo.value.data.splice(0);
+  const res = await axios.get(
+    "https://raw.githubusercontent.com/tokyo-metropolitan-gov/covid19/master/data/patient.json"
+  );
+  municipalityOfTokyo.value.update = res.data.date;
+  for (let data of res.data.datasets.data) {
+    if (data.label === "都外") {
+      municipalityOfTokyo.value.outOfTokyo = data.count;
+    } else if (data.label === "調査中") {
+      municipalityOfTokyo.value.investigating = data.count;
+    } else if (data.label === "小計") {
+      municipalityOfTokyo.value.subTotal = data.count;
+    } else {
+      municipalityOfTokyo.value.data.push({
+        name: data.label,
+        count: data.count,
+        class: (function (count) {
+          if (count >= 1 && count <= 300) {
+            return "bg-red-50";
+          } else if (count <= 500) {
+            return "bg-red-100";
+          } else if (count <= 1000) {
+            return "bg-red-200";
+          } else if (count <= 3000) {
+            return "bg-red-300";
+          } else if (count <= 5000) {
+            return "bg-red-400";
+          } else if (count <= 10000) {
+            return "bg-red-500";
+          } else if (count >= 10001) {
+            return "bg-red-600";
+          } else {
+            return "bg-white";
+          }
+        })(data.count),
+      });
+    }
+  }
+};
 
 // グラフ
 const bedsRemaining = () => {
@@ -134,8 +190,6 @@ const pieBeds = () => {
 let pieChart: Chart<"pie", number[], string>;
 let lineChart: Chart<"line", number[], string>;
 const renderChart = () => {
-  console.log("renderChartがよばれた");
-
   let ctx1 = document.getElementById("pieChart") as ChartItem;
 
   if (pieChart) {
@@ -211,10 +265,10 @@ const renderChart = () => {
       },
     },
   });
-  console.log(graphDataByApi.currentPatients);
 };
 
 const clickButton = () => {
+  getDisplayDataByStore();
   renderChart();
 };
 
@@ -233,14 +287,24 @@ const jumpAppPage = () => {
 };
 
 onMounted(async () => {
-  await getDisplayDataByStore();
-  await getGraphData();
+  //   await getDisplayDataByStore();
+  //   await getGraphData();
   renderChart();
 });
-watchEffect(() => {
-  getDisplayDataByStore();
-  getGraphData();
-});
+// watchEffect(() => {
+//   getDisplayDataByStore();
+//   getGraphData();
+// });
+watch(
+  () => props,
+  (next, prev) => {
+    getDisplayDataByStore();
+    getGraphData();
+  },
+  {
+    deep: true,
+  }
+);
 
 defineExpose({
   renderChart,
@@ -319,6 +383,31 @@ defineExpose({
         </div>
         <div class="w-full h-4/5">
           <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+      <div v-if="props.prefCode === 'JP-13'">
+        <div class="text-center pt-10">
+          【参考】区市町村別患者数（都内発生分） 更新:
+          {{ municipalityOfTokyo.update }}
+        </div>
+        <div class="grid grid-cols-8 gap-1">
+          <div
+            v-for="data of municipalityOfTokyo.data"
+            :key="data.name"
+            class="cursor-pointer grid place-items-center text-black text-center"
+            :class="data.class"
+          >
+            {{ data.name }}
+            <br />
+            {{ data.count }}
+          </div>
+        </div>
+        <div class="text-center text-xs pt-2">
+          （都外:{{
+            municipalityOfTokyo.outOfTokyo.toLocaleString()
+          }}、調査中:{{
+            municipalityOfTokyo.investigating.toLocaleString()
+          }}、小計:{{ municipalityOfTokyo.subTotal.toLocaleString() }}）
         </div>
       </div>
       <div class="btn flex justify-center py-8">
