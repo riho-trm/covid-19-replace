@@ -184,7 +184,7 @@ const showModal = (
   modalData.value.bedsUpdate = allOverview.value
     .bedsUPdate as unknown as string;
 
-  setTimeout(childRef.value.clickButton, 1000);
+  setTimeout(childRef.value.clickButton, 500);
 };
 const closeModal = () => {
   modalData.value.isVisible = false;
