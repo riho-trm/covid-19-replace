@@ -9,6 +9,7 @@ import {
   ComparisonRes,
 } from "../types/overview";
 import BaseCheckbox from "@/components/presentation/BaseCheckbox.vue";
+import OverviewByPrefectureVue from "./OverviewByPrefecture.vue";
 const store = useStore();
 
 let allOverview = ref({
@@ -42,6 +43,17 @@ let comparisonWithPreviousDay = ref([
   },
 ] as ComparisonWithPreviousDay[]);
 let promptChecked = ref(false);
+let modalData = ref({
+  isVisible: false,
+  prefCode: "",
+  prefName: "",
+  bedsOfHospital: 0,
+  bedsOfHotel: 0,
+  bedRate: 0,
+  bedsUpdate: "",
+});
+
+const childRef = ref();
 
 const setApiData = async () => {
   try {
@@ -71,7 +83,6 @@ const created = async () => {
       yesterdayCurrentPatients: res.dcurrentpatients,
     });
   }
-  console.log(comparisonWithPreviousDay.value);
 };
 created();
 
@@ -80,9 +91,7 @@ const bedRateByPrefecture = (
   hotelBeds: number,
   currentPatients: number
 ) => {
-  return Math.floor(
-    (currentPatients / (hospitalBeds + hotelBeds)) * 100
-  ).toLocaleString();
+  return Math.floor((currentPatients / (hospitalBeds + hotelBeds)) * 100);
 };
 const upOrDown = (prefName: string, currentPatients: number) => {
   const res = comparisonWithPreviousDay.value.find(
@@ -154,6 +163,32 @@ watchEffect(async () => {
     );
   }
 });
+
+const showModal = (
+  code: string,
+  name: string,
+  bedsOfHospital: number,
+  bedsOfHotel: number,
+  currentPatients: number
+) => {
+  modalData.value.isVisible = true;
+  modalData.value.prefCode = code;
+  modalData.value.prefName = name;
+  modalData.value.bedsOfHospital = bedsOfHospital;
+  modalData.value.bedsOfHotel = bedsOfHotel;
+  modalData.value.bedRate = bedRateByPrefecture(
+    bedsOfHospital,
+    bedsOfHotel,
+    currentPatients
+  );
+  modalData.value.bedsUpdate = allOverview.value
+    .bedsUPdate as unknown as string;
+
+  setTimeout(childRef.value.clickButton, 500);
+};
+const closeModal = () => {
+  modalData.value.isVisible = false;
+};
 </script>
 
 <template>
@@ -265,8 +300,17 @@ watchEffect(async () => {
         </div>
         <div
           v-for="overview of overviewByPrefecture"
+          v-on:click="
+            showModal(
+              overview.code,
+              overview.name,
+              overview.bedsOfHospital,
+              overview.bedsOfHotel,
+              overview.currentpatients
+            )
+          "
           :key="overview.code"
-          class="grid place-items-center bg-black text-white text-center"
+          class="cursor-pointer grid place-items-center bg-black text-white text-center"
         >
           <div>
             {{ overview.nameJp }}
@@ -289,7 +333,7 @@ watchEffect(async () => {
                 overview.bedsOfHospital,
                 overview.bedsOfHotel,
                 overview.currentpatients
-              )
+              ).toLocaleString()
             }}%
           </div>
           <div>
@@ -315,4 +359,17 @@ watchEffect(async () => {
     />
     前日より減少<fa icon="fa-solid fa-arrow-down" class="text-blue-700" />）
   </div>
+  <!-- モーダル -->
+  <OverviewByPrefectureVue
+    ref="childRef"
+    :is-visible="modalData.isVisible"
+    :prompt-checked="promptChecked"
+    :pref-code="modalData.prefCode"
+    :pref-name="modalData.prefName"
+    :beds-of-hospital="modalData.bedsOfHospital"
+    :beds-of-hotel="modalData.bedsOfHotel"
+    :bed-rate="modalData.bedRate"
+    :beds-update="modalData.bedsUpdate"
+    @close="closeModal"
+  ></OverviewByPrefectureVue>
 </template>

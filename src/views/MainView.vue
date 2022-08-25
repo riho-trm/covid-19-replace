@@ -15,7 +15,7 @@ const toggleTabs = (tabNumber: number) => {
   <div class="flex flex-wrap justify-center">
     <div class="w-11/12">
       <ul class="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row">
-        <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+        <li class="-mb-px mr-2 last:mr-0 flex-auto text-center cursor-pointer">
           <a
             class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal"
             v-on:click="toggleTabs(1)"
@@ -27,7 +27,7 @@ const toggleTabs = (tabNumber: number) => {
             コロナ概況データ
           </a>
         </li>
-        <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+        <li class="-mb-px mr-2 last:mr-0 flex-auto text-center cursor-pointer">
           <a
             class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal"
             v-on:click="toggleTabs(2)"

@@ -39,6 +39,7 @@ export interface Beds {
 export interface PrefAppUrl {
   code: string;
   url: string;
+  appUrl: string;
 }
 
 export interface Ventilator {
@@ -46,4 +47,15 @@ export interface Ventilator {
   clinicalEngineer: number;
   ventilator: number;
   ecmo: number;
+}
+
+export interface GetDataOfPrefecture {
+  nameJp: string;
+  patients: number;
+  currentPatients: number;
+  exits: number;
+  deaths: number;
+  source: string;
+  sourceUrl: string;
+  lastUpdate: string;
 }

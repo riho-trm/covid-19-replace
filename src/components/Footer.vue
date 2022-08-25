@@ -11,7 +11,7 @@
       /></a>
     </div>
     <div class="w-1/3 object-cover p-4">
-      <a class="">
+      <a class="" href="https://tk3-805-12365.vw.sakura.ne.jp:3443/thanks">
         <img class="" alt="元気ですか？" src="../assets/howareyou.png" />
       </a>
     </div>
