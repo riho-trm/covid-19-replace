@@ -97,11 +97,14 @@ const upOrDown = (prefName: string, currentPatients: number) => {
   const res = comparisonWithPreviousDay.value.find(
     (data) => data.name === prefName
   );
-  if (
-    res?.todayCurrentPatients !== currentPatients ||
-    res === undefined ||
-    res.yesterdayCurrentPatients === 0
-  ) {
+  //   if (
+  //   res?.todayCurrentPatients !== currentPatients ||
+  //   res === undefined ||
+  //   res.yesterdayCurrentPatients === 0
+  // ) {
+  //   return 0;
+  // }
+  if (res === undefined) {
     return 0;
   } else if (res.yesterdayCurrentPatients < 0) {
     return 1;
@@ -110,9 +113,13 @@ const upOrDown = (prefName: string, currentPatients: number) => {
   }
 };
 watchEffect(async () => {
+  console.log("AllOverviewのwatchEffectがよばれた");
   if (promptChecked.value === true) {
+    console.log("trueの処理");
+
     const byPrefDataRes = await store.getters
       .getDataByPrefectureWithPromptReport;
+    console.log(byPrefDataRes);
     for (const data of byPrefDataRes) {
       allOverview.value.currentPatients -= data.currentPatients;
       allOverview.value.exits -= data.exits;
@@ -121,6 +128,7 @@ watchEffect(async () => {
     }
 
     const promptRes = await store.getters.getPromptReport;
+    console.log(promptRes);
     for (const data of promptRes) {
       for (const [index, prefData] of overviewByPrefecture.value.entries()) {
         if (prefData.name === data.prefName) {
@@ -135,18 +143,22 @@ watchEffect(async () => {
     allOverview.value.bedRate = Math.floor(
       (allOverview.value.currentPatients / allOverview.value.beds) * 100
     );
+    console.log(allOverview.value);
   }
   if (promptChecked.value === false) {
+    console.log("falseの処理");
     const promptRes = await store.getters.getPromptReport;
+    console.log(promptRes);
+
     for (const data of promptRes) {
       allOverview.value.currentPatients -= data.currentPatients;
       allOverview.value.exits -= data.exits;
       allOverview.value.deaths -= data.deaths;
       allOverview.value.patients -= data.patients;
     }
-
     const byPrefDataRes = await store.getters
       .getDataByPrefectureWithPromptReport;
+    console.log(byPrefDataRes);
     for (const data of byPrefDataRes) {
       for (const [index, prefData] of overviewByPrefecture.value.entries()) {
         if (prefData.name === data.prefName) {
@@ -161,6 +173,7 @@ watchEffect(async () => {
     allOverview.value.bedRate = Math.floor(
       (allOverview.value.currentPatients / allOverview.value.beds) * 100
     );
+    console.log(allOverview.value);
   }
 });
 
@@ -282,6 +295,7 @@ const closeModal = () => {
               >新型コロナウイルス患者数オープンデータ</a
             >」を使用(速報)
           </BaseCheckbox>
+          {{ promptChecked }}
         </div>
       </div>
     </div>
